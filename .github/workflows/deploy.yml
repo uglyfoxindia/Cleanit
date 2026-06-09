@@ -15,12 +15,14 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
+  # Single deploy job, since we're just deploying; for building Vite we do it here
   deploy:
     environment:
       name: github-pages
@@ -37,7 +39,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build project
         run: npm run build
@@ -48,7 +50,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Vite outputs compiled files to the 'dist' directory
+          # Vite outputs to the 'dist' directory by default
           path: './dist'
 
       - name: Deploy to GitHub Pages
